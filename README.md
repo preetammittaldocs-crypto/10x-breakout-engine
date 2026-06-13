@@ -1,367 +1,168 @@
-# 10x-breakout-engine
-Share market
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KathaKids Neuro-Acoustic Portal - Pain Management Suite</title>
-    <!-- Premium Tailwind UI Engine -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+import streamlit as st
+import yfinance as yf
+import pandas as pd
+import numpy as np
+
+# 1. PAGE SETUP
+st.set_page_config(page_title="Alpha Macro & Micro Ingestion Command", layout="wide")
+
+st.markdown("""
     <style>
-        @keyframes pulse-slow {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.05); }
-        }
-        .glow-effect { animation: pulse-slow 4s infinite ease-in-out; }
+    .macro-card {
+        background-color: #0f172a;
+        color: #38bdf8;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: monospace;
+        margin-bottom: 10px;
+    }
     </style>
-</head>
-<body class="bg-[#0b0c10] text-[#c5c6c7] font-sans min-h-screen flex flex-col justify-between selection:bg-[#45f3ff] selection:text-black">
+""", unsafe_allow_html=True)
 
-    <!-- Top Navigation Header -->
-    <header class="border-b border-[#1f2833] bg-[#1f2833]/30 backdrop-blur-md px-8 py-4 flex justify-between items-center">
-        <div class="flex items-center space-x-3">
-            <div class="w-3 h-3 rounded-full bg-[#45f3ff] shadow-[0_0_10px_#45f3ff]"></div>
-            <h1 class="text-xl font-bold tracking-wide text-white uppercase">KathaKids <span class="text-[#45f3ff] font-light">Neuro-Portal</span></h1>
-        </div>
-        <div class="bg-[#0b0c10] px-4 py-1.5 rounded-full border border-[#1f2833] text-xs font-mono text-[#45f3ff]">
-            SYSTEM STATUS: OPERATIONAL
-        </div>
-    </header>
-
-    <!-- Main Portal Dashboard Workspace -->
-    <main class="max-w-5xl w-full mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6 my-auto">
+# 2. ADVANCED DATA INGESTION ENGINE
+@st.cache_data(ttl=1200)
+def pull_comprehensive_intelligence_desk(ticker_symbol):
+    try:
+        ticker = yf.Ticker(ticker_symbol)
+        info = ticker.info
         
-        <!-- Left Panel: Diagnostic & Patient Parameters Configuration -->
-        <section class="bg-[#1f2833]/50 border border-[#1f2833] p-6 rounded-2xl flex flex-col justify-between space-y-6 shadow-xl">
-            <div>
-                <h2 class="text-lg font-semibold text-white mb-2">Diagnostic Profile</h2>
-                <p class="text-xs text-[#86c232] mb-4">Select condition topology to configure acoustic matrices.</p>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs uppercase font-mono tracking-wider mb-2 text-gray-400">Target Pathology</label>
-                        <select id="painType" class="w-full bg-[#0b0c10] border border-[#1f2833] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#45f3ff] transition-all cursor-pointer">
-                            <option value="internal">Neuromuscular / Internal (Dystonia, Spasms)</option>
-                            <option value="external">Somatic / External Tissue Pain (Acute/Structural)</option>
-                        </select>
-                    </div>
-
-                    <div class="bg-[#0b0c10]/60 p-4 rounded-xl border border-[#1f2833]/60">
-                        <h3 class="text-xs uppercase font-mono text-gray-400 mb-2">Clinical Neuro-Insights</h3>
-                        <p id="pathologyInsight" class="text-xs leading-relaxed text-gray-300">
-                            Internal neuromuscular spasms require down-regulating hyperactive motor neurons by mapping acoustic signals to the central nervous system's deep relaxation pathways.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Session Controls Trigger Section -->
-            <div class="space-y-3">
-                <button id="sessionBtn" class="w-full bg-[#45f3ff] hover:bg-[#39d2dd] text-[#0b0c10] font-bold py-4 px-6 rounded-xl shadow-[0_0_20px_rgba(69,243,255,0.2)] hover:shadow-[0_0_25px_rgba(69,243,255,0.4)] transition-all cursor-pointer flex justify-center items-center space-x-2 text-md">
-                    <span id="btnIcon">▶</span> <span id="btnText">Initialize Neuro-Sequence</span>
-                </button>
-                <p class="text-[10px] text-center text-gray-500 italic">Stereo headphones required for correct bilateral phase separation.</p>
-            </div>
-        </section>
-
-        <!-- Right Panel: Real-Time Dynamic Healing Telemetry Matrix -->
-        <section class="md:col-span-2 bg-[#1f2833]/30 border border-[#1f2833] rounded-2xl p-6 flex flex-col justify-between space-y-6 shadow-xl relative overflow-hidden">
-            <div class="absolute -top-24 -right-24 w-48 h-48 bg-[#45f3ff]/5 rounded-full blur-3xl glow-effect"></div>
-            
-            <!-- Real-time Status and Parameters Grid Display -->
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="text-xs uppercase font-mono tracking-widest text-[#45f3ff]">Acoustic Healing Stream</span>
-                    <h2 id="activePhaseTitle" class="text-2xl font-bold text-white mt-1">System Standby</h2>
-                </div>
-                <div class="text-right">
-                    <span class="text-xs uppercase font-mono text-gray-400">Session Timer</span>
-                    <div id="timerDisplay" class="text-2xl font-mono font-bold text-white tracking-widest mt-1">30:00</div>
-                </div>
-            </div>
-
-            <!-- Live Multi-Phase Timeline Track Visualization -->
-            <div class="grid grid-cols-3 gap-2 relative z-10">
-                <div id="phaseCard1" class="border border-[#1f2833] bg-[#0b0c10]/40 p-3 rounded-xl transition-all duration-500">
-                    <div class="text-[10px] font-mono text-gray-500 uppercase">Phase 1 (0-5m)</div>
-                    <div class="text-xs font-semibold text-gray-300 mt-1">Gate Control</div>
-                </div>
-                <div id="phaseCard2" class="border border-[#1f2833] bg-[#0b0c10]/40 p-3 rounded-xl transition-all duration-500">
-                    <div class="text-[10px] font-mono text-gray-500 uppercase">Phase 2 (5-20m)</div>
-                    <div class="text-xs font-semibold text-gray-300 mt-1">Neural Release</div>
-                </div>
-                <div id="phaseCard3" class="border border-[#1f2833] bg-[#0b0c10]/40 p-3 rounded-xl transition-all duration-500">
-                    <div class="text-[10px] font-mono text-gray-500 uppercase">Phase 3 (20-30m)</div>
-                    <div class="text-xs font-semibold text-gray-300 mt-1">Somatic Sync</div>
-                </div>
-            </div>
-
-            <!-- Real-time Oscillating Waveform Visualization Canvas -->
-            <div class="relative bg-[#0b0c10] border border-[#1f2833] h-40 rounded-xl overflow-hidden flex items-center justify-center">
-                <canvas id="waveCanvas" class="w-full h-full absolute inset-0 opacity-80"></canvas>
-                <div id="canvasPlaceholder" class="text-xs font-mono tracking-wider text-gray-600 uppercase z-10">Audio Engine Offline</div>
-            </div>
-
-            <!-- Real-time Metric Readout Strip Layout -->
-            <div class="grid grid-cols-3 gap-4 border-t border-[#1f2833] pt-4 font-mono text-xs">
-                <div>
-                    <span class="block text-gray-500 uppercase text-[10px]">Carrier Target</span>
-                    <span id="metricCarrier" class="text-sm font-bold text-white">-- Hz</span>
-                </div>
-                <div>
-                    <span class="block text-gray-500 uppercase text-[10px]">Binaural Offset</span>
-                    <span id="metricBinaural" class="text-sm font-bold text-[#45f3ff]">-- Hz</span>
-                </div>
-                <div>
-                    <span class="block text-gray-500 uppercase text-[10px]">Output Ceiling</span>
-                    <span id="metricDecibels" class="text-sm font-bold text-[#86c232]">-- dB</span>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Interactive System Footer Context Notice -->
-    <footer class="border-t border-[#1f2833] bg-[#0b0c10] px-8 py-4 text-center text-[11px] text-gray-600 font-mono tracking-wide">
-        CLINICAL PLATFORM SPECIFICATION V1.0.4 • POWERED BY NATIVE WEB AUDIO OS ENGINE
-    </footer>
-
-    <!-- Native Web Audio Engine Core Application Logic Script Code -->
-    <script>
-        // System variables & State parameters Configuration
-        let audioCtx = null;
-        let oscL = null;
-        let oscR = null;
-        let gainL = null;
-        let gainR = null;
-        let merger = null;
-        let masterGain = null;
-        let isRunning = false;
-        let currentPhase = 1;
-        let timeRemaining = 1800; // 30 Minutes in seconds
-        let timerInterval = null;
-        let animationFrameId = null;
-
-        // UI Element Selectors Initialization
-        const sessionBtn = document.getElementById('sessionBtn');
-        const btnIcon = document.getElementById('btnIcon');
-        const btnText = document.getElementById('btnText');
-        const painTypeSelect = document.getElementById('painType');
-        const pathologyInsight = document.getElementById('pathologyInsight');
-        const timerDisplay = document.getElementById('timerDisplay');
-        const canvasPlaceholder = document.getElementById('canvasPlaceholder');
-        const waveCanvas = document.getElementById('waveCanvas');
-        const canvasCtx = waveCanvas.getContext('2d');
+        # Live Price Tape & Trend Posture
+        hist = ticker.history(period="1y")
+        if hist.empty: return None
+        latest_close = hist['Close'].iloc[-1]
+        latest_vol = hist['Volume'].iloc[-1]
+        hist['200_EMA'] = hist['Close'].ewm(span=200, adjust=False).mean()
+        hist['20_Vol_Avg'] = hist['Volume'].rolling(window=20).mean()
         
-        // Metric Telemetry Display Fields Reference
-        const metricCarrier = document.getElementById('metricCarrier');
-        const metricBinaural = document.getElementById('metricBinaural');
-        const metricDecibels = document.getElementById('metricDecibels');
-        const activePhaseTitle = document.getElementById('activePhaseTitle');
-
-        // Pathology Select Event Listener Block
-        painTypeSelect.addEventListener('change', (e) => {
-            if(e.target.value === 'internal') {
-                pathologyInsight.innerText = "Internal neuromuscular spasms require down-regulating hyperactive motor neurons by mapping acoustic signals to the central nervous system's deep relaxation pathways.";
-            } else {
-                pathologyInsight.innerText = "Somatic and tissue pain requires higher frequency neural gate interruption, effectively overriding standard pain transmission nodes along the spinal nerve track.";
-            }
-            if(isRunning) updateAudioParameters();
-        });
-
-        // Main Session Control Initialization Trigger
-        sessionBtn.addEventListener('click', () => {
-            if (!isRunning) {
-                startAudioEngine();
-            } else {
-                stopAudioEngine();
-            }
-        });
-
-        // Native Audio Core Synthesis Implementation Strategy
-        function startAudioEngine() {
-            // Instantiate Audio Context Object safely inside browser tab container environment
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            
-            // Generate standard multi-channel nodal matrix connections
-            oscL = audioCtx.createOscillator();
-            oscR = audioCtx.createOscillator();
-            gainL = audioCtx.createGain();
-            gainR = audioCtx.createGain();
-            merger = audioCtx.createChannelMerger(2);
-            masterGain = audioCtx.createGain();
-
-            // Link discrete left and right oscillation paths into the systemic stereo channel mixer merge nodes
-            oscL.connect(gainL);
-            oscR.connect(gainR);
-            gainL.connect(merger, 0, 0); // Route to Left Speaker channel path
-            gainR.connect(merger, 0, 1); // Route to Right Speaker channel path
-            
-            merger.connect(masterGain);
-            masterGain.connect(audioCtx.destination);
-
-            // Set system control variable flag properties
-            isRunning = true;
-            btnIcon.innerText = "■";
-            btnText.innerText = "Terminate Neuro-Sequence";
-            canvasPlaceholder.classList.add('hidden');
-
-            // Fire initial telemetry updates and begin calculation loops
-            updateAudioParameters();
-            oscL.start();
-            oscR.start();
-            
-            startTimerLoop();
-            drawWaveformAnimation();
+        # 12+ Institutional Financial Ratios
+        ratios = {
+            "Trailing P/E": info.get("trailingPE", "N/A"),
+            "Forward P/E": info.get("forwardPE", "N/A"),
+            "PEG Ratio": info.get("pegRatio", "N/A"),
+            "Price to Sales": info.get("priceToSalesTrailing12Months", "N/A"),
+            "EV/EBITDA": info.get("enterpriseToEbitda", "N/A"),
+            "Gross Margin (%)": round(info.get("grossMargins", 0) * 100, 2) if info.get("grossMargins") else "N/A",
+            "Operating Margin (%)": round(info.get("operatingMargins", 0) * 100, 2) if info.get("operatingMargins") else "N/A",
+            "Net Profit Margin (%)": round(info.get("profitMargins", 0) * 100, 2) if info.get("profitMargins") else "N/A",
+            "Return on Equity (%)": round(info.get("returnOnEquity", 0) * 100, 2) if info.get("returnOnEquity") else "N/A",
+            "Debt to Equity": info.get("debtToEquity", "N/A"),
+            "Current Ratio": info.get("currentRatio", "N/A"),
+            "YoY Rev Growth (%)": round(info.get("revenueGrowth", 0) * 100, 2) if info.get("revenueGrowth") else "N/A",
+            "Short % of Float": round(info.get("shortPercentOfFloat", 0) * 100, 2) if info.get("shortPercentOfFloat") else "N/A"
         }
 
-        // Dynamic Frequency Mapping & Parameters Matrix Calculator Engine
-        function updateAudioParameters() {
-            if(!isRunning) return;
+        # Brokerage Ratings & Big House Consensus Target Prices
+        brokerage_consensus = info.get("recommendationKey", "N/A").upper()
+        target_price = info.get("targetMeanPrice", np.nan)
+        implied_upside = ((target_price / latest_close) - 1) * 100 if target_price and latest_close else 0
+        total_firms = info.get("numberOfAnalystOpinions", 0)
 
-            const isInternal = painTypeSelect.value === 'internal';
-            let carrier = 432;
-            let offset = 0;
-            let volume = 0.5;
-            let displayPhaseText = "";
-
-            // Evaluate specific active temporal window layer blocks
-            if (timeRemaining > 1500) { // Phase 1: First 5 minutes execution window
-                currentPhase = 1;
-                carrier = isInternal ? 741 : 880; 
-                offset = 40; // 40Hz High Gamma Gate-Interruption wave mechanism
-                volume = 0.4;
-                displayPhaseText = "Phase 1: Gate-Control Overwrite";
-                highlightPhaseCard(1);
-            } else if (timeRemaining > 300) { // Phase 2: Middle 5-20 minute therapeutic window
-                currentPhase = 2;
-                carrier = isInternal ? 174 : 285; // 174Hz specialized neuro-relaxation node
-                offset = 4.5; // 4.5Hz Deep Theta Neuromuscular Uncoupling wave
-                volume = 0.6;
-                displayPhaseText = "Phase 2: Neuromuscular Release";
-                highlightPhaseCard(2);
-            } else { // Phase 3: Final 20-30 minute stabilization window
-                currentPhase = 3;
-                carrier = 432; 
-                offset = 7.83; // Schumann Resonance Alpha alignment ground phase
-                volume = 0.3;
-                displayPhaseText = "Phase 3: Somatic Endorphin Integration";
-                highlightPhaseCard(3);
-            }
-
-            // Target audio processor node parameters smoothly to prevent clicks/pops
-            const now = audioCtx.currentTime;
-            oscL.frequency.setValueAtTime(carrier, now);
-            oscR.frequency.setValueAtTime(carrier + offset, now);
-            
-            // Set dynamic decibel outputs ceiling controls
-            masterGain.gain.setValueAtTime(volume, now);
-
-            // Render updated telemetry readout strings directly onto view elements
-            metricCarrier.innerText = `${carrier} Hz`;
-            metricBinaural.innerText = `+${offset} Hz (Gamma/Theta)`;
-            metricDecibels.innerText = isInternal ? "50-55 dB" : "60 dB Max";
-            activePhaseTitle.innerText = displayPhaseText;
+        # Macro Narrative Scanners (Live News Scanning)
+        news_feed = ticker.news
+        macro_signals = {
+            "Donald Trump / Tariffs / Trade Policy": 0,
+            "China / Geopolitics / Blacklists": 0,
+            "Elon Musk / Big Tech Founders": 0,
+            "NVIDIA / Jensen Huang / AI Demand": 0,
+            "Corporate Strategic Pivot": 0
         }
+        intercepted_headlines = []
 
-        // Timer interface loop tracking countdown seconds remaining
-        function startTimerLoop() {
-            timerInterval = setInterval(() => {
-                if(timeRemaining > 0) {
-                    timeRemaining--;
-                    // Update timer text layout display panel element
-                    let mins = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
-                    let secs = (timeRemaining % 60).toString().padStart(2, '0');
-                    timerDisplay.innerText = `${mins}:${secs}`;
-                    
-                    // Periodically execute dynamic parameter sweeps as time progresses
-                    if(timeRemaining % 5 === 0) updateAudioParameters();
-                } else {
-                    stopAudioEngine();
-                }
-            }, 1000);
+        for article in news_feed:
+            title = article.get("title", "").lower()
+            hit = False
+            if any(x in title for x in ["trump", "tariff", "white house", "policy"]):
+                macro_signals["Donald Trump / Tariffs / Trade Policy"] += 1
+                hit = True
+            if any(x in title for x in ["china", "blacklist", "beijing", "tariff"]):
+                macro_signals["China / Geopolitics / Blacklists"] += 1
+                hit = True
+            if any(x in title for x in ["musk", "elon", "tesla", "bezos", "amazon"]):
+                macro_signals["Elon Musk / Big Tech Founders"] += 1
+                hit = True
+            if any(x in title for x in ["nvidia", "huang", "ai server", "chips"]):
+                macro_signals["NVIDIA / Jensen Huang / AI Demand"] += 1
+                hit = True
+            if any(x in title for x in ["pivot", "restructure", "acquire", "spin-off", "shift"]):
+                macro_signals["Corporate Strategic Pivot"] += 1
+                hit = True
+            if hit:
+                intercepted_headlines.append(f"• {article.get('title')} ({article.get('publisher')})")
+
+        # System Scoring
+        score = 50
+        if latest_close > hist['200_EMA'].iloc[-1]: score += 25
+        if latest_vol > hist['20_Vol_Avg'].iloc[-1] * 1.3: score += 25
+
+        return {
+            "Ticker": ticker_symbol, "Spot": round(latest_close, 2), "200_EMA": round(hist['200_EMA'].iloc[-1], 2),
+            "Ratios": ratios, "Consensus": brokerage_consensus, "Target": round(target_price, 2) if not np.isnan(target_price) else "N/A",
+            "Upside": round(implied_upside, 2), "Coverage": total_firms, "Macro": macro_signals, "Headlines": intercepted_headlines[:5], "Score": score
         }
+    except: return None
 
-        // Highlight the current phase card visually
-        function highlightPhaseCard(phaseNum) {
-            [1, 2, 3].forEach(num => {
-                const card = document.getElementById(`phaseCard${num}`);
-                if(num === phaseNum) {
-                    card.className = "border border-[#45f3ff] bg-[#45f3ff]/10 p-3 rounded-xl shadow-[0_0_15px_rgba(69,243,255,0.1)] transition-all duration-500";
-                } else {
-                    card.className = "border border-[#1f2833] bg-[#0b0c10]/40 p-3 rounded-xl transition-all duration-500 opacity-40";
-                }
-            });
-        }
+# 3. INTERFACE BUILDER
+st.title("🦅 Alpha Multi-Factor Ingestion Workspace")
+st.markdown("Automated system parsing real-time technical indicators, 12+ metrics, brokerage trends, and political news streams.")
+st.hr()
 
-        // Live Canvas visualization script plotting continuous sine outputs
-        function drawWaveformAnimation() {
-            if(!isRunning) return;
-            
-            animationFrameId = requestAnimationFrame(drawWaveformAnimation);
-            
-            // Reset canvas pixel grid space boundary parameters
-            waveCanvas.width = waveCanvas.parentElement.clientWidth;
-            waveCanvas.height = waveCanvas.parentElement.clientHeight;
-            
-            canvasCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
-            canvasCtx.lineWidth = 2;
-            canvasCtx.strokeStyle = currentPhase === 1 ? '#45f3ff' : currentPhase === 2 ? '#86c232' : '#ff007f';
-            canvasCtx.beginPath();
+workspace = st.sidebar.radio("Active Desk Desk:", ["US Secular Growth Core", "Indian Structural Rotations"])
+default_tickers = "MU,DELL,IBM,NVDA,NOK" if workspace == "US Secular Growth Core" else "BEL.NS,HAL.NS,DIXON.NS"
+tickers_raw = st.sidebar.text_area("Tracked Assets (Comma Separated):", default_tickers)
+watchlist = [t.strip().upper() for t in tickers_raw.split(",") if t.strip()]
 
-            const width = waveCanvas.width;
-            const height = waveCanvas.height;
-            const sliceWidth = width / 100;
-            let x = 0;
+db = {}
+with st.spinner("Compiling live fundamental, technical, and macro news streams..."):
+    for asset in watchlist:
+        res = pull_comprehensive_intelligence_desk(asset)
+        if res: db[asset] = res
 
-            // Generate synthetic oscillatory visual parameters mapped dynamically to current active frequency phase speeds
-            let frequencyModifier = currentPhase === 1 ? 0.15 : currentPhase === 2 ? 0.04 : 0.08;
-            let timeScale = performance.now() * frequencyModifier;
-
-            for (let i = 0; i < 100; i++) {
-                let v = Math.sin((i + timeScale) * 0.3) * (height * 0.25);
-                let y = height / 2 + v;
-
-                if (i === 0) {
-                    canvasCtx.moveTo(x, y);
-                } else {
-                    canvasCtx.lineTo(x, y);
-                }
-                x += sliceWidth;
-            }
-
-            canvasCtx.lineTo(width, height / 2);
-            canvasCtx.stroke();
-        }
-
-        // System shutdown sequence resetting hardware oscillators and parameters safely
-        function stopAudioEngine() {
-            isRunning = false;
-            clearInterval(timerInterval);
-            cancelAnimationFrameId = cancelAnimationFrame(animationFrameId);
-
-            if(oscL) { oscL.stop(); oscL.disconnect(); }
-            if(oscR) { oscR.stop(); oscR.disconnect(); }
-            if(audioCtx) audioCtx.close();
-
-            // Tear down UI dashboard elements to initial offline baseline settings
-            btnIcon.innerText = "▶";
-            btnText.innerText = "Initialize Neuro-Sequence";
-            canvasPlaceholder.classList.remove('hidden');
-            activePhaseTitle.innerText = "System Standby";
-            timerDisplay.innerText = "30:00";
-            timeRemaining = 1800;
-            
-            metricCarrier.innerText = "-- Hz";
-            metricBinaural.innerText = "-- Hz";
-            metricDecibels.innerText = "-- dB";
-            
-            canvasCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
-            
-            [1, 2, 3].forEach(num => {
-                document.getElementById(`phaseCard${num}`).className = "border border-[#1f2833] bg-[#0b0c10]/40 p-3 rounded-xl transition-all duration-500";
-            });
-        }
-    </script>
-</body>
-</html>
+if db:
+    table_data = [{"Asset": k, "Price": v["Spot"], "200 EMA Floor": v["200_EMA"], "Conviction Score": v["Score"], "Big House Consensus": v["Consensus"], "Implied Growth Upside": f"{v['Upside']}%"} for k, v in db.items()]
+    df_main = pd.DataFrame(table_data).sort_values(by="Conviction Score", ascending=False)
+    
+    tab_leaderboard, tab_ratios, tab_macro, tab_ai_payload = st.tabs(["📊 Conviction Leaderboard", "📈 12-Core Financial Ratios", "🌍 Geopolitical News Monitor", "📑 AI Code Prompt Generator"])
+    
+    with tab_leaderboard:
+        st.subheader("System Portfolio Conviction Rankings")
+        st.dataframe(df_main, use_container_width=True)
+        
+    with tab_ratios:
+        st.subheader("Deep Granular Fundamental Matrix")
+        st.dataframe(pd.DataFrame({k: v["Ratios"] for k, v in db.items()}).T, use_container_width=True)
+        
+    with tab_macro:
+        st.subheader("Macro Policy & Founder Context Tracking")
+        focus = st.selectbox("Select Target Asset to Inspect:", list(db.keys()))
+        col_metrics, col_news = st.columns([1, 2])
+        with col_metrics:
+            st.write(pd.DataFrame([db[focus]["Macro"]]).T.rename(columns={0: "Keyword Hits Found"}))
+        with col_news:
+            st.markdown("**Relevant Intercepted Headlines:**")
+            if db[focus]["Headlines"]:
+                for hl in db[focus]["Headlines"]: st.caption(hl)
+            else:
+                st.write("*No direct political or founder mentions identified in this 24-hour window.*")
+        
+    with tab_ai_payload:
+        st.subheader("Copy-Paste Data Prompt Package")
+        st.markdown("Copy the entire code text container below and drop it into your external AI window.")
+        
+        package_body = f"=== CONVICTION STOCK DATA INPUT BLOCK ===\n"
+        package_body += f"METADATA: TARGET_WORKSPACE={workspace}\n\n"
+        for k, v in db.items():
+            package_body += f"## ASSET TRACKER: {k}\n"
+            package_body += f"- TECHNICAL POSTURE: Spot Price={v['Spot']} (200 EMA Support Floor={v['200_EMA']})\n"
+            package_body += f"- SYSTEMIC CONVICTION SCORE: {v['Score']}/100\n"
+            package_body += f"- BROKERAGE VECTORS: Consensus Rating Stance={v['Consensus']}, Target Price Projection={v['Target']} ({v['Upside']}% Implied Growth Runway) across {v['Coverage']} firms\n"
+            package_body += f"- KEY FINANCIAL RATIOS: {str(v['Ratios'])}\n"
+            package_body += f"- GEOPOLITICAL SENTIMENT EXPOSURE: {str(v['Macro'])}\n"
+            package_body += "---------------------------------------------------------\n"
+        package_body += "\n=== SYSTEM INSTRUCTION ===\n"
+        package_body += "You are acting as an elite Institutional Technology and Macro Equity Analyst. Process the real-time financial metrics, brokerage actions, and geopolitical policy keyword data blocks supplied above.\n\n"
+        package_body += "Provide a comprehensive market analysis report detailing which companies show clear indicators of 10x breakout potential. Highlight corporate transitions, macro trade policy alignments, and valuation margins.\n\n"
+        package_body += "Conclude your analysis with a strict 10-line executive summary report summarizing all major metric changes, technical support floor breakouts, and your definitive buy/avoid decisions for each ticker."
+        
+        st.code(package_body, language="text")
+else:
+    st.error("Connection established, but no stock metrics were pulled. Verify your ticker spellings in the sidebar container.")
